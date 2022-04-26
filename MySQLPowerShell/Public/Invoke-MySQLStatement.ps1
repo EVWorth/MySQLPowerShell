@@ -11,33 +11,39 @@ function Invoke-MySQLStatement {
     .LINK
     #>
     
-        [CmdletBinding(ConfirmImpact = 'High')]
-        param (
-            [Parameter(ValueFromPipeline)]
-            [MySql.Data.MySqlClient.MySqlConnection]$Session,
+    [CmdletBinding(ConfirmImpact = 'High')]
+    param (
+        [Parameter(ValueFromPipeline)]
+        [MySql.Data.MySqlClient.MySqlConnection]$Session,
 
-            [Parameter(Mandatory)]
-            [String]$Statement,
+        [Parameter(Mandatory)]
+        [String]$Statement,
 
-            [Parameter()]
-            [Switch]$ReturnData
-        )
+        [Parameter()]
+        [Switch]$ReturnData
+    )
         
-        begin {}
+    begin {}
         
-        process {
+    process {
+        Try {
             $Command = New-Object MySql.Data.MySqlClient.MySqlCommand($Statement, $Session)
             If ($ReturnData) {
                 $DataAdapter = New-Object MySql.Data.MySqlClient.MySqlDataAdapter($Command)
                 $DataSet = New-Object MySql.Data.Dataset
                 $DataAdapter.Fill($DataSet)
                 Return $DataSet
-            } Else {
+            }
+            Else {
                 $Command.ExecuteNonQuery() | Out-Null
             }
         }
-        
-        end {
+        Catch {
+            Throw
         }
     }
+        
+    end {
+    }
+}
     
